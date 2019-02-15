@@ -382,7 +382,16 @@ static FirebasePlugin *firebasePlugin;
     [self.commandDelegate runInBackground:^{
         NSString* key = [command.arguments objectAtIndex:0];
         FIRRemoteConfig* remoteConfig = [FIRRemoteConfig remoteConfig];
-        NSString* value = remoteConfig[key].stringValue;
+        NSString* value;
+        if ([command.arguments count] > 1) {
+            // With namespace
+            NSString* namespace = [command.arguments objectAtIndex:1];
+            value = [remoteConfig configValueForKey:key namespace:namespace].stringValue;
+        } else {
+            // Without namespace
+            value = remoteConfig[key].stringValue;
+        }
+
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
